@@ -129,6 +129,43 @@ export const DESIGN_CONSTANTS = {
     SLOW: 500,
     VERY_SLOW: 800,
   },
+
+  // Shadows for depth and visual hierarchy
+  // Elder-friendly: Provides visual cues for interactive elements
+  SHADOWS: {
+    NONE: { 
+      elevation: 0, 
+      shadowOpacity: 0 
+    },
+    SM: { 
+      elevation: 2,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.18,
+      shadowRadius: 1.0,
+    },
+    MD: { 
+      elevation: 4,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 2.5,
+    },
+    LG: {
+      elevation: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4.0,
+    },
+    XL: {
+      elevation: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.3,
+      shadowRadius: 6.0,
+    },
+  },
 } as const;
 
 /**
@@ -213,14 +250,77 @@ export const CONFIG: AppConfiguration = {
  */
 const THEMES = {
   DEFAULT: {
-    colors: DESIGN_CONSTANTS.COLORS,
+    colors: {
+      BACKGROUND: DESIGN_CONSTANTS.COLORS.NEUTRAL[0],
+      SURFACE: DESIGN_CONSTANTS.COLORS.NEUTRAL[50],
+      SURFACE_ELEVATED: DESIGN_CONSTANTS.COLORS.NEUTRAL[0],
+      PRIMARY: DESIGN_CONSTANTS.COLORS.PRIMARY[500],
+      PRIMARY_DARK: DESIGN_CONSTANTS.COLORS.PRIMARY[700],
+      PRIMARY_LIGHT: DESIGN_CONSTANTS.COLORS.PRIMARY[100],
+      SECONDARY: DESIGN_CONSTANTS.COLORS.SUCCESS[500],
+      ACCENT: DESIGN_CONSTANTS.COLORS.WARNING[500],
+      TEXT_PRIMARY: DESIGN_CONSTANTS.COLORS.NEUTRAL[900],
+      TEXT_SECONDARY: DESIGN_CONSTANTS.COLORS.NEUTRAL[600],
+      TEXT_DISABLED: DESIGN_CONSTANTS.COLORS.NEUTRAL[400],
+      DIVIDER: DESIGN_CONSTANTS.COLORS.NEUTRAL[200],
+      ERROR: DESIGN_CONSTANTS.COLORS.ERROR[500],
+      WARNING: DESIGN_CONSTANTS.COLORS.WARNING[500],
+      SUCCESS: DESIGN_CONSTANTS.COLORS.SUCCESS[500],
+      INFO: DESIGN_CONSTANTS.COLORS.PRIMARY[500],
+    },
     typography: DESIGN_CONSTANTS.TYPOGRAPHY,
     spacing: DESIGN_CONSTANTS.SPACING,
     touchTargets: DESIGN_CONSTANTS.TOUCH_TARGET,
+    shadows: DESIGN_CONSTANTS.SHADOWS,
+    borderRadius: DESIGN_CONSTANTS.BORDER_RADIUS,
+  },
+  
+  DARK: {
+    colors: {
+      // Elder-friendly dark mode palette with 4.5:1+ contrast ratios
+      BACKGROUND: '#121212',
+      SURFACE: '#1E1E1E',
+      SURFACE_ELEVATED: '#2C2C2C',
+      PRIMARY: '#90CAF9',      // Light blue (accessible on dark backgrounds)
+      PRIMARY_DARK: '#64B5F6',
+      PRIMARY_LIGHT: '#BBDEFB',
+      SECONDARY: '#A5D6A7',    // Light green
+      ACCENT: '#FFD54F',       // Amber
+      TEXT_PRIMARY: '#FFFFFF',
+      TEXT_SECONDARY: '#B0B0B0',
+      TEXT_DISABLED: '#757575',
+      DIVIDER: '#424242',
+      ERROR: '#EF5350',
+      WARNING: '#FFA726',
+      SUCCESS: '#66BB6A',
+      INFO: '#42A5F5',
+    },
+    typography: DESIGN_CONSTANTS.TYPOGRAPHY,
+    spacing: DESIGN_CONSTANTS.SPACING,
+    touchTargets: DESIGN_CONSTANTS.TOUCH_TARGET,
+    shadows: DESIGN_CONSTANTS.SHADOWS,
+    borderRadius: DESIGN_CONSTANTS.BORDER_RADIUS,
   },
   
   HIGH_CONTRAST: {
-    colors: DESIGN_CONSTANTS.COLORS,
+    colors: {
+      BACKGROUND: DESIGN_CONSTANTS.COLORS.HIGH_CONTRAST.BACKGROUND,
+      SURFACE: DESIGN_CONSTANTS.COLORS.HIGH_CONTRAST.SURFACE,
+      SURFACE_ELEVATED: '#2A2A2A',
+      PRIMARY: DESIGN_CONSTANTS.COLORS.HIGH_CONTRAST.ACCENT,
+      PRIMARY_DARK: '#CCCC00',
+      PRIMARY_LIGHT: '#FFFF66',
+      SECONDARY: DESIGN_CONSTANTS.COLORS.HIGH_CONTRAST.FOCUS,
+      ACCENT: DESIGN_CONSTANTS.COLORS.HIGH_CONTRAST.ACCENT,
+      TEXT_PRIMARY: DESIGN_CONSTANTS.COLORS.HIGH_CONTRAST.TEXT_PRIMARY,
+      TEXT_SECONDARY: DESIGN_CONSTANTS.COLORS.HIGH_CONTRAST.TEXT_SECONDARY,
+      TEXT_DISABLED: '#999999',
+      DIVIDER: '#666666',
+      ERROR: '#FF4444',
+      WARNING: DESIGN_CONSTANTS.COLORS.HIGH_CONTRAST.ACCENT,
+      SUCCESS: '#00FF00',
+      INFO: DESIGN_CONSTANTS.COLORS.HIGH_CONTRAST.FOCUS,
+    },
     typography: {
       FONT_SIZES: {
         CAPTION: 12,
@@ -240,10 +340,29 @@ const THEMES = {
       COMFORTABLE: 64,
       LARGE: 72,
     },
+    shadows: DESIGN_CONSTANTS.SHADOWS,
+    borderRadius: DESIGN_CONSTANTS.BORDER_RADIUS,
   },
   
   LARGE_TEXT: {
-    colors: DESIGN_CONSTANTS.COLORS,
+    colors: {
+      BACKGROUND: DESIGN_CONSTANTS.COLORS.NEUTRAL[0],
+      SURFACE: DESIGN_CONSTANTS.COLORS.NEUTRAL[50],
+      SURFACE_ELEVATED: DESIGN_CONSTANTS.COLORS.NEUTRAL[0],
+      PRIMARY: DESIGN_CONSTANTS.COLORS.PRIMARY[500],
+      PRIMARY_DARK: DESIGN_CONSTANTS.COLORS.PRIMARY[700],
+      PRIMARY_LIGHT: DESIGN_CONSTANTS.COLORS.PRIMARY[100],
+      SECONDARY: DESIGN_CONSTANTS.COLORS.SUCCESS[500],
+      ACCENT: DESIGN_CONSTANTS.COLORS.WARNING[500],
+      TEXT_PRIMARY: DESIGN_CONSTANTS.COLORS.NEUTRAL[900],
+      TEXT_SECONDARY: DESIGN_CONSTANTS.COLORS.NEUTRAL[600],
+      TEXT_DISABLED: DESIGN_CONSTANTS.COLORS.NEUTRAL[400],
+      DIVIDER: DESIGN_CONSTANTS.COLORS.NEUTRAL[200],
+      ERROR: DESIGN_CONSTANTS.COLORS.ERROR[500],
+      WARNING: DESIGN_CONSTANTS.COLORS.WARNING[500],
+      SUCCESS: DESIGN_CONSTANTS.COLORS.SUCCESS[500],
+      INFO: DESIGN_CONSTANTS.COLORS.PRIMARY[500],
+    },
     typography: {
       FONT_SIZES: {
         CAPTION: 16,
@@ -267,6 +386,8 @@ const THEMES = {
       XXXL: 64,
     },
     touchTargets: DESIGN_CONSTANTS.TOUCH_TARGET,
+    shadows: DESIGN_CONSTANTS.SHADOWS,
+    borderRadius: DESIGN_CONSTANTS.BORDER_RADIUS,
   },
 } as const;
 

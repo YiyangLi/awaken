@@ -154,10 +154,48 @@ export interface UserPreferences {
   fontSize: 'small' | 'medium' | 'large' | 'extra-large';
   /** High contrast mode for visual accessibility */
   highContrastMode: boolean;
+  /** Theme preference for visual customization */
+  theme?: 'DEFAULT' | 'DARK' | 'HIGH_CONTRAST' | 'LARGE_TEXT';
   /** Preferred payment method for quick checkout */
   preferredPaymentMethod?: string;
   /** Voice announcements for order status updates */
   voiceAnnouncements: boolean;
   /** Haptic feedback for button presses */
   hapticFeedback: boolean;
+}
+
+/**
+ * Migration record for tracking schema version changes
+ * Elder-friendly: Maintains history for debugging and rollback capabilities
+ */
+export interface MigrationRecord {
+  /** Schema version before migration */
+  fromVersion: number;
+  /** Schema version after migration */
+  toVersion: number;
+  /** When the migration was performed */
+  timestamp: Date;
+  /** Whether migration completed successfully */
+  success: boolean;
+  /** Error message if migration failed */
+  error?: string;
+}
+
+/**
+ * Application settings combining user preferences and cart configuration
+ * Designed for comprehensive elder-friendly app persistence
+ */
+export interface AppSettings {
+  /** User accessibility and preference settings */
+  userPreferences: UserPreferences;
+  /** Coffee cart operational configuration */
+  cartConfig: CoffeeCartConfig;
+  /** App version for migration compatibility */
+  version: string;
+  /** Last updated timestamp for sync tracking */
+  lastUpdated: Date;
+  /** Current schema version of stored data (optional for backward compatibility) */
+  schemaVersion?: number;
+  /** History of all schema migrations performed (optional for backward compatibility) */
+  migrationHistory?: MigrationRecord[];
 }
