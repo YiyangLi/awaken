@@ -24,6 +24,7 @@ export const DESIGN_CONSTANTS = {
       CAPTION: 12,
       SMALL: 14,
       BODY: 18,        // Minimum 18pt for body text per requirements
+      BUTTON: 20,      // Button text size for clear readability
       SUBHEADING: 22,
       HEADING: 28,
       LARGE_HEADING: 34,

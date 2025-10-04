@@ -1,15 +1,31 @@
-import { Text, View } from "react-native";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useAuth } from '@/contexts';
 
 export default function Index() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
-    </View>
-  );
+  const { isAdmin } = useAuth();
+  const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      if (isAdmin) {
+        router.replace('/(admin)');
+      } else {
+        router.replace('/(user)');
+      }
+    }, 0);
+
+    return () => {clearTimeout(timer);};
+  }, [isAdmin, router, isMounted]);
+
+  return null;
 }

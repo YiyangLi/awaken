@@ -162,6 +162,8 @@ export interface UserPreferences {
   voiceAnnouncements: boolean;
   /** Haptic feedback for button presses */
   hapticFeedback: boolean;
+  /** Admin session status for route protection */
+  isAdminSession?: boolean;
 }
 
 /**
@@ -199,3 +201,5 @@ export interface AppSettings {
   /** History of all schema migrations performed (optional for backward compatibility) */
   migrationHistory?: MigrationRecord[];
 }
+
+export type { UserStackParamList, AdminStackParamList, RootStackParamList } from './navigation';
