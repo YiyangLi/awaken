@@ -1,25 +1,53 @@
-# LCC_10: Accessible Navigation Components
+# LCC_10: Cart, Checkout Flow & Haptic Feedback
 
 ## Description
-Create reusable navigation components optimized for elderly users with large buttons, clear labeling, and intuitive navigation patterns.
+Implement cart review and checkout screens with elder-friendly order submission, plus add haptic feedback and accessibility polish to all navigation components.
 
 ## Acceptance Criteria
-- [ ] Main navigation component in `/src/components/MainNavigation.tsx`
-- [ ] Large navigation buttons (minimum 44pt touch targets)
-- [ ] Clear, descriptive labels with large text (18pt minimum)
-- [ ] High contrast visual design
-- [ ] Active state indicators that are easy to distinguish
-- [ ] Breadcrumb component for complex navigation flows
-- [ ] Back button component with consistent placement
-- [ ] Tab navigation component for main sections
-- [ ] Accessibility labels for screen readers
-- [ ] Haptic feedback for button presses (iOS)
+
+### Cart & Checkout Flow
+- [ ] Cart screen at `/app/(user)/cart.tsx`
+- [ ] Cart displays selected drinks with large cards
+- [ ] Easy-to-modify quantities with large +/- buttons (56pt touch targets)
+- [ ] Remove item button for each drink (44pt minimum)
+- [ ] Clear total calculation display (40pt font)
+- [ ] Large "Checkout" button (64pt height)
+- [ ] Checkout screen at `/app/(user)/checkout.tsx`
+- [ ] Customer name input with large text field (24pt font, 64pt height)
+- [ ] Large on-screen keyboard support
+- [ ] Optional phone number input
+- [ ] Order summary with all drink details
+- [ ] Large "Submit Order" button (64pt height)
+- [ ] Order confirmation screen with order number
+- [ ] Estimated completion time display
+- [ ] "Order Another" button to return to menu
+- [ ] Save completed order to StorageService
+- [ ] Barista assignment from default list (APP_CONFIG)
+
+### Haptic Feedback & Accessibility
+- [ ] Add haptic feedback to all button presses (iOS)
+- [ ] Haptic feedback on BackButton
+- [ ] Haptic feedback on ModeSwitch actions
+- [ ] Haptic feedback on menu drink buttons
+- [ ] Haptic feedback on cart +/- buttons
+- [ ] Verify all VoiceOver announcements work correctly
+- [ ] Test complete flow with accessibility inspector
+- [ ] Ensure keyboard navigation works throughout
+- [ ] Document accessibility features
+
+## Technical Details
+- Cart state management: Use React Context or local state
+- Order structure: Follow Order interface from `/src/types/index.ts`
+- Barista assignment: Use default list from APP_CONFIG.ADMIN.DEFAULT_BARISTAS
+- Haptic feedback: Use `expo-haptics` library
+- Storage: Save orders with status 'pending'
+- Navigation: Use router.push() and router.replace() appropriately
 
 ## Dependencies
-Blocked by: LCC_5, LCC_8
+Blocked by: LCC_9
 
 ## Story Points
-3
+8
 
 ## Priority
-Medium
+High

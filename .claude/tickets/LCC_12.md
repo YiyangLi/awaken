@@ -17,7 +17,7 @@ Create integration tests for the core infrastructure components and document the
 - [ ] Performance benchmarks for storage operations
 
 ## Dependencies
-Blocked by: LCC_4, LCC_8, LCC_9, LCC_11
+Blocked by: LCC_4, LCC_8, LCC_10, LCC_11
 
 ## Story Points
 8
