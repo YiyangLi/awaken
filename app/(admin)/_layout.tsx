@@ -49,6 +49,13 @@ export default function AdminLayout() {
           headerShown: true,
         }}
       />
+      <Stack.Screen
+        name="orders"
+        options={{
+          title: 'Order Management',
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }

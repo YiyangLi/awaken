@@ -3,9 +3,17 @@
 > **Note**: This changelog provides a high-level summary of completed tickets. For detailed implementation notes, verification results, and technical context, see `.claude/context/ticket-details/LCC_XX.md`
 
 ## Quick Reference
-- **Total Tickets Completed**: 13 (LCC_1 through LCC_12, LCC_14)
+- **Total Tickets Completed**: 14 (LCC_1 through LCC_14)
 - **Project Start**: 2025-10-03
 - **Last Updated**: 2025-10-05
+
+---
+
+## [LCC_13] - 2025-10-05 - Admin Order Management Dashboard
+**Files**: `app/(admin)/orders.tsx`, `app/(admin)/_layout.tsx`
+**Summary**: Implemented iPad-optimized admin dashboard with responsive 2-column grid layout on landscape mode, color-coded order cards by status, status filtering, customer search, date range filtering, and quick action buttons with modal confirmations.
+**Key Features**: Responsive grid (2-column on iPad landscape), status workflow (pending → in-progress → ready → completed), cancel confirmation modal, pull-to-refresh, VoiceOver accessibility, 56pt filter buttons and 64pt action buttons
+[Details →](./ticket-details/LCC_13.md)
 
 ---
 

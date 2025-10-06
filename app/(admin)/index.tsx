@@ -21,17 +21,34 @@ export default function AdminDashboardScreen() {
         Admin Dashboard
       </Text>
 
-      <Text style={[styles.subtitle, {
-        color: theme.colors.TEXT_SECONDARY,
-        fontSize: theme.typography.FONT_SIZES.BODY,
-      }]}>
-        Order management and settings coming soon in future tickets
-      </Text>
+      <Pressable
+        onPress={() => router.push('/(admin)/orders')}
+        style={({ pressed }) => [
+          styles.button,
+          {
+            backgroundColor: theme.colors.PRIMARY,
+            minHeight: theme.touchTargets.LARGE,
+            ...theme.shadows.MD,
+          },
+          pressed && styles.buttonPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="View Orders"
+        accessibilityHint="Tap to open order management dashboard"
+      >
+        <Text style={[styles.buttonText, {
+          color: '#FFFFFF',
+          fontSize: theme.typography.FONT_SIZES.SUBHEADING,
+        }]}>
+          View Orders
+        </Text>
+      </Pressable>
 
       <Pressable
         onPress={handleLogout}
         style={({ pressed }) => [
           styles.button,
+          styles.logoutButton,
           {
             backgroundColor: theme.colors.ERROR,
             minHeight: theme.touchTargets.LARGE,
@@ -66,10 +83,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
-  subtitle: {
-    marginBottom: 48,
-    textAlign: 'center',
-  },
   button: {
     width: '100%',
     maxWidth: 400,
@@ -78,6 +91,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  logoutButton: {
+    marginTop: 16,
   },
   buttonPressed: {
     opacity: 0.8,
