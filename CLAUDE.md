@@ -104,17 +104,12 @@ When this command is given, Claude Code automatically executes the following wor
 5. Determine if ticket requirements need updates based on project evolution
 6. Assign ticket to @agent-react-native-accessibility-engineer with context
 
-📋 STEP 2: Implementation (@agent-react-native-accessibility-engineer)  
+📋 STEP 2: Implementation (@agent-react-native-accessibility-engineer)
 1. Receive ticket assignment with dependency status
 2. Implement the assigned ticket with accessibility focus
 3. Ensure elder-friendly design patterns (44pt touch targets, high contrast)
 4. Run quality checks (TypeScript, ESLint with jsx-a11y rules)
-5. Update `.claude/context/changelog.md` with:
-   - Ticket completion status
-   - Implementation details
-   - Accessibility considerations
-   - Verification results
-   - Next steps
+5. Update documentation following the Changelog Workflow (see below)
 
 📊 Progress Tracking:
 - Automatic dependency checking prevents blocked work
@@ -122,7 +117,49 @@ When this command is given, Claude Code automatically executes the following wor
 - Each ticket completion updates project status
 ```
 
-**Key Automation Features**:
+### **Changelog Workflow**
+
+The project uses a two-tier documentation system for efficient context management:
+
+**Structure**:
+- **`.claude/context/changelog.md`** - Compact summary (3-4 lines per ticket)
+- **`.claude/context/ticket-details/LCC_XX.md`** - Detailed implementation notes (optional)
+
+**When completing a new ticket**:
+
+```
+1. Add 3-4 line summary to changelog.md
+   Format:
+   ## [LCC_XX] - YYYY-MM-DD - Ticket Title
+   **Files**: Key files created/modified
+   **Summary**: 1-2 sentence overview
+   **Key Features**: Bullet points of main functionality
+   [Details →](./ticket-details/LCC_XX.md)
+
+2. Create detailed file in ticket-details/ (optional for simple tickets)
+   - Use .claude/context/ticket-details/LCC_14.md as template
+   - Include: Overview, Implementation Details, Technical Notes,
+     Bug Fixes, Verification Results, Elder-Friendly Features
+   - Recommended for tickets with:
+     ✅ Complex implementation (>100 lines changed)
+     ✅ Bug fixes that need documentation
+     ✅ Architectural decisions
+     ✅ Multiple iterations or refinements
+
+3. Skip detailed file for:
+   ⚠️ Simple config changes
+   ⚠️ Trivial updates (<20 lines)
+   ⚠️ Minor fixes without technical complexity
+```
+
+**Benefits**:
+- Quick overview: Scan all completed tickets in ~30 seconds
+- Deep dives available when needed
+- Efficient context usage (changelog reduced from 3,109 to 133 lines)
+- Template-driven consistency
+
+### **Key Automation Features**
+
 - ✅ Automatic dependency verification via changelog review
 - ✅ Context-aware ticket assignment with current project state
 - ✅ Seamless handoff between architect and engineer agents

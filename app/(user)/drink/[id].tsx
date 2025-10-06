@@ -18,7 +18,7 @@ const DRINK_DISPLAY_NAMES = {
 
 export default function DrinkDetailScreen() {
   const { theme } = useTheme();
-  const { addItem } = useCart();
+  const { addItem, clearCart } = useCart();
   const router = useRouter();
   const navigation = useNavigation();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -121,12 +121,15 @@ export default function DrinkDetailScreen() {
     setSelectedSyrup(selectedSyrup === syrup ? null : syrup);
   };
 
-  const handleAddToCart = () => {
+  const handleReview = () => {
     if (!drink) {
       return;
     }
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    // Clear cart first (only 1 item per order)
+    clearCart();
 
     // Create cart item with drink-specific customizations (quantity always 1)
     const cartItem: {
@@ -176,7 +179,7 @@ export default function DrinkDetailScreen() {
     }
 
     addItem(cartItem);
-    router.push('/(user)/cart');
+    router.push('/(user)/review');
   };
 
   // Helper functions to determine what options each drink needs
@@ -625,7 +628,7 @@ export default function DrinkDetailScreen() {
 
       </ScrollView>
 
-      {/* Add to Cart button */}
+      {/* Review button */}
       <View
         style={[
           styles.footer,
@@ -637,7 +640,7 @@ export default function DrinkDetailScreen() {
         ]}
       >
         <Pressable
-          onPress={handleAddToCart}
+          onPress={handleReview}
           style={({ pressed }) => [
             styles.addToCartButton,
             {
@@ -648,7 +651,7 @@ export default function DrinkDetailScreen() {
             pressed && styles.addToCartButtonPressed,
           ]}
           accessibilityRole="button"
-          accessibilityLabel={`Add ${displayName} to cart`}
+          accessibilityLabel={`Review ${displayName} order`}
         >
           <Text
             style={[
@@ -658,7 +661,7 @@ export default function DrinkDetailScreen() {
               },
             ]}
           >
-            Add to Cart
+            Review
           </Text>
         </Pressable>
       </View>

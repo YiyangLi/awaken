@@ -50,6 +50,20 @@ export default function UserLayout() {
           headerShown: true,
         }}
       />
+      <Stack.Screen
+        name="review"
+        options={{
+          title: 'Review',
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="confirmation"
+        options={{
+          title: 'Confirmation',
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }
