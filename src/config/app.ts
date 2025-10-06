@@ -225,6 +225,32 @@ export const APP_CONFIG = {
     OFFLINE_MODE_ENABLED: true,
     MAX_OFFLINE_ORDERS: 100,
   },
+
+  // Drink customization options
+  CUSTOMIZATION: {
+    // Available syrup flavors (admin-configurable in future)
+    SYRUP_FLAVORS: [
+      'Vanilla',
+      'Caramel',
+      'Hazelnut',
+    ],
+    
+    // Default espresso shot values
+    SHOTS: {
+      DEFAULT: 2,
+      MIN: 0,  // 0 only for Chai Latte when not dirty
+      MAX: 4,
+    },
+    
+    // Milk options (Almond removed per requirements)
+    MILK_OPTIONS: [
+      'Whole',
+      'Oat',
+    ],
+    
+    // Default size (hardcoded to 12oz, but structure kept for future)
+    DEFAULT_SIZE: '12oz',
+  },
 } as const;
 
 /**

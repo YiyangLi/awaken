@@ -1,6 +1,7 @@
 import { Pressable, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/contexts';
+import * as Haptics from 'expo-haptics';
 
 interface BackButtonProps {
   label?: string;
@@ -12,6 +13,7 @@ export function BackButton({ label = 'Back', onPress }: BackButtonProps) {
   const router = useRouter();
 
   const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (onPress) {
       onPress();
     } else {

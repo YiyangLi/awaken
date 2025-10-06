@@ -2,6 +2,7 @@ import { Pressable, Text, StyleSheet, Alert, TextInput, View, Animated } from 'r
 import { useRouter } from 'expo-router';
 import { useTheme, useAuth } from '@/contexts';
 import { useState, useRef } from 'react';
+import * as Haptics from 'expo-haptics';
 
 export function ModeSwitch() {
   const { theme } = useTheme();
@@ -14,6 +15,7 @@ export function ModeSwitch() {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePress = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (isAdmin) {
       await logout();
       router.replace('/(user)');
@@ -24,6 +26,7 @@ export function ModeSwitch() {
 
   const handleLogin = async () => {
     if (!password.trim()) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert('Error', 'Please enter the admin password');
       return;
     }
@@ -31,11 +34,13 @@ export function ModeSwitch() {
     const success = await login(password);
     
     if (success) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setPassword('');
       setIsError(false);
       setShowPasswordInput(false);
       router.replace('/(admin)');
     } else {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setIsError(true);
       
       Animated.sequence([
@@ -79,6 +84,7 @@ export function ModeSwitch() {
   };
 
   const handleCancel = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setPassword('');
     setIsError(false);
     setShowPasswordInput(false);

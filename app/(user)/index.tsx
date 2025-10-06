@@ -4,6 +4,7 @@ import { useTheme } from '@/contexts';
 import { useEffect, useState } from 'react';
 import { StorageService } from '@/storage';
 import type { Drink } from '@/types';
+import * as Haptics from 'expo-haptics';
 
 const DRINK_COLORS = {
   mocha: '#8B4513',
@@ -47,6 +48,7 @@ export default function MenuScreen() {
   };
 
   const handleDrinkPress = (drinkId: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push(`/(user)/drink/${drinkId}`);
   };
 

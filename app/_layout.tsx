@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import { ThemeProvider, AuthProvider } from '@/contexts';
+import { ThemeProvider, AuthProvider, CartProvider } from '@/contexts';
 import { useEffect } from 'react';
 import { seedInitialData, validateStoredData } from '@/storage';
 
@@ -16,11 +16,13 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-          }}
-        />
+        <CartProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          />
+        </CartProvider>
       </AuthProvider>
     </ThemeProvider>
   );
