@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import { useTheme, useCart } from '@/contexts';
-import { useEffect, useState, useLayoutEffect } from 'react';
+import { useEffect, useState, useLayoutEffect, useMemo } from 'react';
 import { StorageService } from '@/storage';
 import { APP_CONFIG } from '@/config';
 import type { Drink, DrinkCategory, Syrup } from '@/types';
 import * as Haptics from 'expo-haptics';
+import { calculateInventoryStats } from '@/utils/inventory';
 
 const DRINK_DISPLAY_NAMES = {
   mocha: 'Mocha',
@@ -26,6 +27,7 @@ export default function DrinkDetailScreen() {
   const [drink, setDrink] = useState<Drink | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [availableSyrups, setAvailableSyrups] = useState<Syrup[]>([]);
+  const [syrupUsageMap, setSyrupUsageMap] = useState<Map<string, number>>(new Map());
 
   // Customization options (drink-specific)
   const [selectedMilk, setSelectedMilk] = useState<'whole' | 'oat'>('whole');
@@ -38,6 +40,7 @@ export default function DrinkDetailScreen() {
   useEffect(() => {
     loadDrink();
     loadAvailableSyrups();
+    loadSyrupUsage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -51,6 +54,37 @@ export default function DrinkDetailScreen() {
       console.error('Failed to load syrups:', error);
     }
   };
+
+  const loadSyrupUsage = async () => {
+    try {
+      const allOrders = await StorageService.getOrders();
+      const stats = calculateInventoryStats(allOrders);
+
+      // Convert stats.syrups object to Map for efficient lookups
+      const usageMap = new Map<string, number>();
+      Object.entries(stats.syrups).forEach(([name, count]) => {
+        usageMap.set(name.toLowerCase(), count);
+      });
+      setSyrupUsageMap(usageMap);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to load syrup usage:', error);
+    }
+  };
+
+  // Sort syrups by popularity (highest usage first)
+  const sortedSyrups = useMemo(() => [...availableSyrups].sort((a, b) => {
+    const countA = syrupUsageMap.get(a.name.toLowerCase()) ?? 0;
+    const countB = syrupUsageMap.get(b.name.toLowerCase()) ?? 0;
+
+    // Sort by count descending
+    if (countB !== countA) {
+      return countB - countA;
+    }
+
+    // If counts are equal, sort alphabetically
+    return a.name.localeCompare(b.name);
+  }), [availableSyrups, syrupUsageMap]);
 
   // Update navigation title with drink name
   useLayoutEffect(() => {
@@ -614,7 +648,7 @@ export default function DrinkDetailScreen() {
               </View>
             ) : (
               <View style={styles.optionRow}>
-                {availableSyrups.map((syrup) => {
+                {sortedSyrups.map((syrup) => {
                   const isSelected = selectedSyrup === syrup.name;
                   return (
                     <Pressable
@@ -773,10 +807,13 @@ const styles = StyleSheet.create({
   },
   optionRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 40,
   },
   optionCard: {
-    flex: 1,
+    // Width to fit exactly 3 per row with 40px gaps
+    // Formula: (100% - (2 * 40px gaps)) / 3 ≈ 30.67%
+    width: '30.67%',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',

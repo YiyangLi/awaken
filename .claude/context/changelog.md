@@ -3,9 +3,17 @@
 > **Note**: This changelog provides a high-level summary of completed tickets. For detailed implementation notes, verification results, and technical context, see `.claude/context/ticket-details/LCC_XX.md`
 
 ## Quick Reference
-- **Total Tickets Completed**: 16 (LCC_1 through LCC_14, LCC_16, LCC_17)
+- **Total Tickets Completed**: 17 (LCC_1 through LCC_14, LCC_16, LCC_17, LCC_18)
 - **Project Start**: 2025-10-03
 - **Last Updated**: 2025-10-06
+
+---
+
+## [LCC_18] - 2025-10-06 - Multi-Row Syrup Grid Layout with Popularity Sorting
+**Files**: `app/(user)/drink/[id].tsx`
+**Summary**: Implemented popularity-based syrup sorting and multi-row grid layout (3 syrups per row) in drink customization screen. Syrups are sorted by order history with most popular options appearing first, using flexWrap layout for automatic row wrapping.
+**Key Features**: Syrup usage tracking via calculateInventoryStats(), useMemo-optimized sorting (highest order count first, alphabetical tiebreaker), flexWrap layout with 30.67% width per button (3-per-row), 40px gaps (horizontal/vertical), 64pt touch targets maintained, VoiceOver accessibility preserved
+[Details →](./ticket-details/LCC_18.md)
 
 ---
 
