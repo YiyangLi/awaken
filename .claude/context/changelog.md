@@ -3,9 +3,17 @@
 > **Note**: This changelog provides a high-level summary of completed tickets. For detailed implementation notes, verification results, and technical context, see `.claude/context/ticket-details/LCC_XX.md`
 
 ## Quick Reference
-- **Total Tickets Completed**: 15 (LCC_1 through LCC_14, LCC_16)
+- **Total Tickets Completed**: 16 (LCC_1 through LCC_14, LCC_16, LCC_17)
 - **Project Start**: 2025-10-03
 - **Last Updated**: 2025-10-06
+
+---
+
+## [LCC_17] - 2025-10-06 - Admin Syrup Management Interface
+**Files**: `app/(admin)/syrups.tsx`, `app/(admin)/_layout.tsx`, `app/(admin)/index.tsx`, `src/types/index.ts`, `src/storage/StorageService.ts`, `src/storage/migrations.ts`, `app/(user)/drink/[id].tsx`, `src/utils/inventory.ts`
+**Summary**: Implemented dynamic syrup inventory management system with inline add form, status toggling (available/soldOut), deletion with confirmations, and automatic filtering in drink customization screens. Replaced hardcoded syrup list with database-driven approach.
+**Key Features**: Inline TextInput + Add button (no modal), real-time CRUD operations, status badges (green/orange), pull-to-refresh, syrup migration from string[] to Syrup[] objects, dynamic syrup tracking in inventory analysis, customer screens show only available syrups
+[Details →](./ticket-details/LCC_17.md)
 
 ---
 
