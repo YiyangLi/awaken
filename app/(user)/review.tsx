@@ -169,31 +169,19 @@ export default function ReviewScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: theme.colors.BACKGROUND }]}
+      style={{ flex: 1, backgroundColor: theme.colors.BACKGROUND }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={0}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         {/* Order Detail */}
         <View style={styles.section}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              {
-                color: theme.colors.TEXT_PRIMARY,
-                fontSize: theme.typography.FONT_SIZES.HEADING,
-              },
-            ]}
-            accessibilityRole="header"
-          >
-            Your Order
-          </Text>
-
           {/* Drink name */}
           <Text
             style={[
@@ -225,21 +213,8 @@ export default function ReviewScreen() {
           )}
         </View>
 
-        {/* Customer Name Input */}
-        <View style={styles.section}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              {
-                color: theme.colors.TEXT_PRIMARY,
-                fontSize: theme.typography.FONT_SIZES.HEADING,
-              },
-            ]}
-            accessibilityRole="header"
-          >
-            Your Name
-          </Text>
-
+        {/* Customer Name Input and Submit Button Row */}
+        <View style={styles.inputRow}>
           <TextInput
             style={[
               styles.textInput,
@@ -260,41 +235,41 @@ export default function ReviewScreen() {
             returnKeyType="done"
             accessibilityLabel="Customer name"
             accessibilityHint="Required: Enter your name for the order"
+            maxLength={20}
           />
-        </View>
 
-        {/* Place Order Button */}
-        <Pressable
-          onPress={handlePlaceOrder}
-          disabled={!isButtonEnabled}
-          style={({ pressed }) => [
-            styles.placeOrderButton,
-            {
-              backgroundColor: isButtonEnabled ? theme.colors.PRIMARY : theme.colors.SURFACE,
-              minHeight: theme.touchTargets.LARGE,
-              ...theme.shadows.LG,
-            },
-            pressed && isButtonEnabled && styles.buttonPressed,
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="Place order"
-          accessibilityHint="Confirm and place your order"
-          accessibilityState={{
-            disabled: !isButtonEnabled,
-          }}
-        >
-          <Text
-            style={[
-              styles.placeOrderButtonText,
+          <Pressable
+            onPress={handlePlaceOrder}
+            disabled={!isButtonEnabled}
+            style={({ pressed }) => [
+              styles.placeOrderButton,
               {
-                color: isButtonEnabled ? '#FFFFFF' : theme.colors.TEXT_DISABLED,
-                fontSize: theme.typography.FONT_SIZES.HEADING,
+                backgroundColor: isButtonEnabled ? theme.colors.PRIMARY : theme.colors.SURFACE,
+                minHeight: theme.touchTargets.LARGE,
+                ...theme.shadows.LG,
               },
+              pressed && isButtonEnabled && styles.buttonPressed,
             ]}
+            accessibilityRole="button"
+            accessibilityLabel="Place order"
+            accessibilityHint="Confirm and place your order"
+            accessibilityState={{
+              disabled: !isButtonEnabled,
+            }}
           >
-            {isSubmitting ? 'Placing Order...' : 'Place an Order'}
-          </Text>
-        </Pressable>
+            <Text
+              style={[
+                styles.placeOrderButtonText,
+                {
+                  color: isButtonEnabled ? '#FFFFFF' : theme.colors.TEXT_DISABLED,
+                  fontSize: theme.typography.FONT_SIZES.HEADING,
+                },
+              ]}
+            >
+              {isSubmitting ? 'Placing...' : 'Place Order'}
+            </Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -308,11 +283,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 40,
+    paddingHorizontal: 40,
+    paddingTop: 20,
     paddingBottom: 80,
   },
   section: {
-    marginBottom: 40,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontWeight: '700',
@@ -326,7 +302,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     lineHeight: 28,
   },
+  inputRow: {
+    flexDirection: 'row',
+    gap: 16,
+    alignItems: 'center',
+  },
   textInput: {
+    flex: 1,
     borderRadius: 16,
     borderWidth: 2,
     paddingHorizontal: 24,
@@ -336,10 +318,9 @@ const styles = StyleSheet.create({
   placeOrderButton: {
     borderRadius: 20,
     paddingVertical: 24,
-    paddingHorizontal: 40,
+    paddingHorizontal: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 24,
   },
   placeOrderButtonText: {
     fontWeight: '700',

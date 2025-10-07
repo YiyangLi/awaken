@@ -4,7 +4,7 @@ import { useTheme, useCart } from '@/contexts';
 import { useEffect, useState, useLayoutEffect } from 'react';
 import { StorageService } from '@/storage';
 import { APP_CONFIG } from '@/config';
-import type { Drink, DrinkCategory } from '@/types';
+import type { Drink, DrinkCategory, Syrup } from '@/types';
 import * as Haptics from 'expo-haptics';
 
 const DRINK_DISPLAY_NAMES = {
@@ -25,7 +25,8 @@ export default function DrinkDetailScreen() {
   
   const [drink, setDrink] = useState<Drink | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [availableSyrups, setAvailableSyrups] = useState<Syrup[]>([]);
+
   // Customization options (drink-specific)
   const [selectedMilk, setSelectedMilk] = useState<'whole' | 'oat'>('whole');
   const [shots, setShots] = useState<number>(APP_CONFIG.CUSTOMIZATION.SHOTS.DEFAULT);
@@ -36,8 +37,20 @@ export default function DrinkDetailScreen() {
 
   useEffect(() => {
     loadDrink();
+    loadAvailableSyrups();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  const loadAvailableSyrups = async () => {
+    try {
+      const allSyrups = await StorageService.getSyrups();
+      const available = allSyrups.filter(s => s.status === 'available');
+      setAvailableSyrups(available);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to load syrups:', error);
+    }
+  };
 
   // Update navigation title with drink name
   useLayoutEffect(() => {
@@ -585,44 +598,60 @@ export default function DrinkDetailScreen() {
             >
               Syrup Flavor (Optional)
             </Text>
-            <View style={styles.optionRow}>
-              {APP_CONFIG.CUSTOMIZATION.SYRUP_FLAVORS.map((syrup) => {
-                const isSelected = selectedSyrup === syrup;
-                return (
-                  <Pressable
-                    key={syrup}
-                    onPress={() => {handleSyrupSelect(syrup);}}
-                    style={({ pressed }) => [
-                      styles.optionCard,
-                      {
-                        backgroundColor: isSelected ? theme.colors.PRIMARY_LIGHT : theme.colors.SURFACE,
-                        borderColor: isSelected ? theme.colors.PRIMARY : theme.colors.DIVIDER,
-                        borderWidth: isSelected ? 4 : 2,
-                        minHeight: theme.touchTargets.LARGE * 2,
-                        ...theme.shadows.MD,
-                      },
-                      pressed && styles.optionCardPressed,
-                    ]}
-                    accessibilityRole="radio"
-                    accessibilityState={{ selected: isSelected }}
-                    accessibilityLabel={`${syrup} syrup`}
-                  >
-                    <Text
-                      style={[
-                        styles.optionLabel,
+            {availableSyrups.length === 0 ? (
+              <View style={styles.noSyrupsMessage}>
+                <Text
+                  style={[
+                    styles.noSyrupsText,
+                    {
+                      color: theme.colors.TEXT_SECONDARY,
+                      fontSize: theme.typography.FONT_SIZES.BODY,
+                    },
+                  ]}
+                >
+                  No syrups available. Please contact staff.
+                </Text>
+              </View>
+            ) : (
+              <View style={styles.optionRow}>
+                {availableSyrups.map((syrup) => {
+                  const isSelected = selectedSyrup === syrup.name;
+                  return (
+                    <Pressable
+                      key={syrup.id}
+                      onPress={() => {handleSyrupSelect(syrup.name);}}
+                      style={({ pressed }) => [
+                        styles.optionCard,
                         {
-                          color: isSelected ? theme.colors.PRIMARY : theme.colors.TEXT_PRIMARY,
-                          fontSize: theme.typography.FONT_SIZES.SUBHEADING,
-                          fontWeight: isSelected ? '700' : '500',
+                          backgroundColor: isSelected ? theme.colors.PRIMARY_LIGHT : theme.colors.SURFACE,
+                          borderColor: isSelected ? theme.colors.PRIMARY : theme.colors.DIVIDER,
+                          borderWidth: isSelected ? 4 : 2,
+                          minHeight: theme.touchTargets.LARGE * 2,
+                          ...theme.shadows.MD,
                         },
+                        pressed && styles.optionCardPressed,
                       ]}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: isSelected }}
+                      accessibilityLabel={`${syrup.name} syrup`}
                     >
-                      {syrup}
-                    </Text>
+                      <Text
+                        style={[
+                          styles.optionLabel,
+                          {
+                            color: isSelected ? theme.colors.PRIMARY : theme.colors.TEXT_PRIMARY,
+                            fontSize: theme.typography.FONT_SIZES.SUBHEADING,
+                            fontWeight: isSelected ? '700' : '500',
+                          },
+                        ]}
+                      >
+                        {syrup.name}
+                      </Text>
                   </Pressable>
                 );
               })}
             </View>
+            )}
           </View>
         )}
 
@@ -683,6 +712,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontWeight: '600',
     marginBottom: 20,
+  },
+  noSyrupsMessage: {
+    padding: 24,
+    alignItems: 'center',
+  },
+  noSyrupsText: {
+    fontWeight: '500',
+    textAlign: 'center',
   },
   // New compact 3-card layout (matching main menu grid)
   threeCardRow: {

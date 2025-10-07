@@ -194,21 +194,25 @@ export function ModalProvider({ children }: { children: ReactNode }) {
         accessible
         accessibilityViewIsModal
       >
-        <Pressable
-          style={styles.backdrop}
-          onPress={handleBackdropPress}
-          accessible={false}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
         >
           <Pressable
-            style={[
-              styles.modalContainer,
-              {
-                backgroundColor: theme.colors.SURFACE,
-                ...theme.shadows.LG,
-              },
-            ]}
-            onPress={(e) => {e.stopPropagation();}}
+            style={styles.backdrop}
+            onPress={handleBackdropPress}
+            accessible={false}
           >
+            <Pressable
+              style={[
+                styles.modalContainer,
+                {
+                  backgroundColor: theme.colors.SURFACE,
+                  ...theme.shadows.LG,
+                },
+              ]}
+              onPress={(e) => {e.stopPropagation();}}
+            >
             {/* Confirmation Modal */}
             {currentModal?.type === 'confirmation' && (
               <View style={styles.content}>
@@ -398,10 +402,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
 
             {/* Form Modal */}
             {currentModal?.type === 'form' && (
-              <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                style={styles.content}
-              >
+              <View style={styles.content}>
                 <Text
                   style={[
                     styles.title,
@@ -507,10 +508,11 @@ export function ModalProvider({ children }: { children: ReactNode }) {
                     </Text>
                   </Pressable>
                 </View>
-              </KeyboardAvoidingView>
+              </View>
             )}
           </Pressable>
         </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
     </ModalContext.Provider>
   );

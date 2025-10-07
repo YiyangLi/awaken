@@ -16,14 +16,15 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StorageService } from './StorageService';
-import { 
-  CURRENT_SCHEMA_VERSION, 
-  DEFAULT_DRINKS_SEED, 
+import {
+  CURRENT_SCHEMA_VERSION,
+  DEFAULT_DRINKS_SEED,
   DEFAULT_SETTINGS_SEED,
-  type MigrationRecord, 
+  type MigrationRecord,
   type AppSettingsWithSchema,
 } from './schemas';
 import { validateDrink, validateOrder } from '../utils/validation';
+import type { Syrup } from '../types';
 
 /**
  * Backup storage keys
@@ -407,19 +408,19 @@ export async function seedInitialData(): Promise<void> {
 
 /**
  * Validate all stored data using LCC_6 validators
- * 
+ *
  * Elder-friendly features:
  * - Validates drinks, orders, and settings
  * - Removes corrupted data automatically
  * - Logs validation failures for debugging
  * - Never crashes on invalid data
- * 
+ *
  * @returns Promise that resolves when validation completes (never rejects)
  */
 export async function validateStoredData(): Promise<void> {
   try {
     console.log('Validating stored data...');
-    
+
     // Validate drinks
     const drinks = await StorageService.getDrinks();
     const validDrinks = drinks.filter(drink => {
@@ -431,13 +432,13 @@ export async function validateStoredData(): Promise<void> {
       }
       return isValid;
     });
-    
+
     // Save cleaned drinks if any were invalid
     if (validDrinks.length < drinks.length) {
       console.log(`Removed ${drinks.length - validDrinks.length} invalid drinks`);
       await StorageService.saveDrinks(validDrinks);
     }
-    
+
     // Validate orders
     const orders = await StorageService.getOrders();
     const validOrders = orders.filter(order => {
@@ -449,17 +450,73 @@ export async function validateStoredData(): Promise<void> {
       }
       return isValid;
     });
-    
+
     // Save cleaned orders if any were invalid
     if (validOrders.length < orders.length) {
       console.log(`Removed ${orders.length - validOrders.length} invalid orders`);
       await StorageService.saveOrders(validOrders);
     }
-    
+
     console.log('Data validation completed successfully');
-    
+
   } catch (error) {
     // Elder-friendly: Log error but don't throw
     console.error('Failed to validate stored data:', error);
+  }
+}
+
+/**
+ * Migrate syrups from APP_CONFIG string[] to Syrup[] objects
+ *
+ * Elder-friendly features:
+ * - Only runs once per device (tracked via migration flag)
+ * - Converts default syrups to full Syrup objects with status
+ * - Safe to call multiple times (idempotent)
+ * - Never crashes on failure
+ *
+ * @returns Promise that resolves when migration completes (never rejects)
+ */
+export async function migrateSyrupsToObjects(): Promise<void> {
+  try {
+    // Check if migration already ran
+    const migrationFlag = await AsyncStorage.getItem('@awaken:syrup_migration_v1');
+    if (migrationFlag === 'true') {
+      console.log('Syrup migration already completed');
+      return;
+    }
+
+    // Check if syrups already exist in new format
+    const existingSyrups = await StorageService.getSyrups();
+    if (existingSyrups.length > 0) {
+      console.log('Syrups already exist in new format, marking migration as complete');
+      await AsyncStorage.setItem('@awaken:syrup_migration_v1', 'true');
+      return;
+    }
+
+    // Default syrups from APP_CONFIG
+    const defaultSyrupNames = ['Vanilla', 'Caramel', 'Hazelnut'];
+
+    console.log('Migrating syrups to new format...');
+
+    // Convert to Syrup objects
+    const migratedSyrups: Syrup[] = defaultSyrupNames.map((name, index) => ({
+      id: `syrup_default_${index}`,
+      name,
+      status: 'available' as const,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }));
+
+    // Save migrated syrups
+    await StorageService.saveSyrups(migratedSyrups);
+
+    // Mark migration as complete
+    await AsyncStorage.setItem('@awaken:syrup_migration_v1', 'true');
+
+    console.log(`Successfully migrated ${migratedSyrups.length} syrups`);
+
+  } catch (error) {
+    // Elder-friendly: Log error but don't throw
+    console.error('Failed to migrate syrups:', error);
   }
 }

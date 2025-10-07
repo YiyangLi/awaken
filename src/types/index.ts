@@ -167,6 +167,28 @@ export interface UserPreferences {
 }
 
 /**
+ * Syrup availability status
+ */
+export type SyrupStatus = 'available' | 'soldOut';
+
+/**
+ * Syrup interface for inventory management
+ * Supports availability tracking and elder-friendly admin interface
+ */
+export interface Syrup {
+  /** Unique identifier for the syrup */
+  id: string;
+  /** Display name (e.g., "Vanilla", "Caramel") */
+  name: string;
+  /** Current availability status */
+  status: SyrupStatus;
+  /** When syrup was added to system */
+  createdAt: Date;
+  /** Last status change timestamp */
+  updatedAt: Date;
+}
+
+/**
  * Migration record for tracking schema version changes
  * Elder-friendly: Maintains history for debugging and rollback capabilities
  */

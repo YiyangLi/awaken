@@ -56,6 +56,20 @@ export default function AdminLayout() {
           headerShown: true,
         }}
       />
+      <Stack.Screen
+        name="inventory"
+        options={{
+          title: 'Inventory Analysis',
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="syrups"
+        options={{
+          title: 'Syrup Management',
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }

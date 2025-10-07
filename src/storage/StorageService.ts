@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Order, Drink, AppSettings } from '../types';
+import type { Order, Drink, AppSettings, Syrup, SyrupStatus } from '../types';
 
 /**
  * Storage keys for AsyncStorage
@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
   ORDERS: '@awaken:orders',
   DRINKS: '@awaken:drinks',
   SETTINGS: '@awaken:settings',
+  SYRUPS: '@awaken:syrups',
 } as const;
 
 /**
@@ -147,7 +148,7 @@ class StorageServiceClass {
   /**
    * Clear all app data from AsyncStorage
    * Useful for reset/logout functionality
-   * 
+   *
    * @returns Promise that resolves when clear completes (never rejects)
    */
   async clearAllData(): Promise<void> {
@@ -156,11 +157,109 @@ class StorageServiceClass {
         STORAGE_KEYS.ORDERS,
         STORAGE_KEYS.DRINKS,
         STORAGE_KEYS.SETTINGS,
+        STORAGE_KEYS.SYRUPS,
       ]);
     } catch (error) {
       // Elder-friendly: Log error but don't throw
       console.error('Failed to clear storage data:', error);
     }
+  }
+
+  /**
+   * Retrieve syrups from AsyncStorage
+   *
+   * @returns Promise resolving to array of syrups (empty array on error/missing data)
+   */
+  async getSyrups(): Promise<Syrup[]> {
+    try {
+      const jsonValue = await AsyncStorage.getItem(STORAGE_KEYS.SYRUPS);
+
+      if (jsonValue === null) {
+        // No data stored yet - return empty array
+        return [];
+      }
+
+      const parsed = JSON.parse(jsonValue, this.dateReviver);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      // Elder-friendly: Return empty array instead of throwing
+      console.error('Failed to retrieve syrups from storage:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Save syrups to AsyncStorage
+   *
+   * @param syrups - Array of syrups to persist
+   * @returns Promise that resolves when save completes (never rejects)
+   */
+  async saveSyrups(syrups: Syrup[]): Promise<void> {
+    try {
+      const jsonValue = JSON.stringify(syrups);
+      await AsyncStorage.setItem(STORAGE_KEYS.SYRUPS, jsonValue);
+    } catch (error) {
+      // Elder-friendly: Log error but don't throw
+      console.error('Failed to save syrups to storage:', error);
+    }
+  }
+
+  /**
+   * Add a new syrup to storage
+   *
+   * @param syrup - Syrup data without id, createdAt, updatedAt
+   * @returns Promise resolving to the created syrup with generated fields
+   * @throws Error if syrup name already exists (case-insensitive)
+   */
+  async addSyrup(syrup: Omit<Syrup, 'id' | 'createdAt' | 'updatedAt'>): Promise<Syrup> {
+    const syrups = await this.getSyrups();
+
+    // Check for duplicate names (case-insensitive)
+    const duplicate = syrups.find(
+      s => s.name.toLowerCase() === syrup.name.toLowerCase()
+    );
+    if (duplicate) {
+      throw new Error(`Syrup "${syrup.name}" already exists`);
+    }
+
+    const newSyrup: Syrup = {
+      ...syrup,
+      id: `syrup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    await this.saveSyrups([...syrups, newSyrup]);
+    return newSyrup;
+  }
+
+  /**
+   * Update syrup status (available/soldOut)
+   *
+   * @param id - Syrup ID to update
+   * @param status - New status
+   * @returns Promise that resolves when update completes
+   */
+  async updateSyrupStatus(id: string, status: SyrupStatus): Promise<void> {
+    const syrups = await this.getSyrups();
+    const updated = syrups.map(s =>
+      s.id === id
+        ? { ...s, status, updatedAt: new Date() }
+        : s
+    );
+    await this.saveSyrups(updated);
+  }
+
+  /**
+   * Delete syrup from storage
+   *
+   * @param id - Syrup ID to delete
+   * @returns Promise that resolves when deletion completes
+   */
+  async deleteSyrup(id: string): Promise<void> {
+    const syrups = await this.getSyrups();
+    const filtered = syrups.filter(s => s.id !== id);
+    await this.saveSyrups(filtered);
   }
 
   /**
