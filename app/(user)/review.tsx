@@ -133,12 +133,11 @@ export default function ReviewScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
-      // Create order
+      // Create order - CartContext will handle navigation to preview/confirmation
       await createOrder(customerName.trim());
 
-      // Navigate to confirmation screen
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace('/(user)/confirmation');
+      // Note: Navigation is handled by CartContext.createOrder()
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Failed to place order:', error);

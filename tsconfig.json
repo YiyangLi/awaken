@@ -51,7 +51,9 @@
       "@/hooks/*": ["src/hooks/*"],
       "@/hooks": ["src/hooks"],
       "@/contexts/*": ["src/contexts/*"],
-      "@/contexts": ["src/contexts"]
+      "@/contexts": ["src/contexts"],
+      "@/services/*": ["src/services/*"],
+      "@/services": ["src/services"]
     },
     
     // Accessibility and React Native specific

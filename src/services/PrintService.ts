@@ -1,4 +1,6 @@
 import { captureRef } from 'react-native-view-shot';
+import { Image } from 'react-native';
+import { downloadAsync, cacheDirectory } from 'expo-file-system/legacy';
 // @ts-ignore - Brother printing library does not have TypeScript types
 import { printImage, LabelSize, discoverPrinters, registerBrotherListener } from '@w3lcome/react-native-brother-printers';
 import type { LabelFormat } from '@/types';
@@ -10,7 +12,7 @@ export interface PrinterConfig {
 }
 
 export interface BrotherPrinter {
-  ipAddress: string;
+ipAddress: string;
   modelName: string;
   serialNumber?: string;
 }
@@ -28,36 +30,44 @@ export class PrintService {
    * @returns Promise that resolves when print is sent (doesn't wait for completion)
    */
   static async printLabel(
-    _labelFormat: LabelFormat,
+    labelFormat: LabelFormat,
     printerConfig: PrinterConfig,
-    labelViewRef: unknown
+    imageUriOrRef: string | unknown
   ): Promise<void> {
     try {
-      // 1. Wait for view to render
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // 2. Capture label view as PNG image
-      const imageUri = await captureRef(labelViewRef as never, {
-        format: 'png',
-        quality: 1.0,
-        width: 732, // 2.44" at 300 DPI
-        height: 411, // 1.37" at 300 DPI
-        result: 'tmpfile', // Save to temp file for better compatibility
-      });
-
       // eslint-disable-next-line no-console
-      console.log('Label image generated:', imageUri);
-      // eslint-disable-next-line no-console
-      console.log('Label format:', _labelFormat);
+      console.log('Printing label with format:', labelFormat);
 
-      // 2. Create printer object for @w3lcome/react-native-brother-printers
+      let imageUri: string;
+
+      // Check if we have a pre-captured image URI or need to capture
+      if (typeof imageUriOrRef === 'string') {
+        imageUri = imageUriOrRef;
+        // eslint-disable-next-line no-console
+        console.log('Using pre-captured image URI:', imageUri);
+      } else {
+        // Fallback: capture from ref
+        // eslint-disable-next-line no-console
+        console.log('Capturing image from ref...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        imageUri = await captureRef(imageUriOrRef as never, {
+          format: 'png',
+          quality: 1.0,
+          result: 'tmpfile',
+        });
+
+        // eslint-disable-next-line no-console
+        console.log('Captured image URI:', imageUri);
+      }
+
+      // Create printer object
       const printer: BrotherPrinter = {
         ipAddress: printerConfig.ipAddress,
         modelName: printerConfig.modelName,
       };
 
-      // 3. Send image to printer via WiFi
-      // Label size for 62mm × 34.88mm (2.44" × 1.37")
+      // Send image to printer via WiFi
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       await printImage(printer, imageUri, {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -66,11 +76,9 @@ export class PrintService {
 
       // eslint-disable-next-line no-console
       console.log('Print sent to Brother QL-810W');
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Print error:', error);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       throw new Error(
         `Failed to print label: ${
           error instanceof Error ? error.message : 'Unknown error'
@@ -120,12 +128,33 @@ export class PrintService {
     printerConfig: PrinterConfig
   ): Promise<void> {
     try {
-      // Use the static test-label.png image directly
+      // Resolve the static test-label.png image to get HTTP URI
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const testImageUri = require('../../assets/images/test-label.png');
+      const testImageSource = require('../../assets/images/test-label.png');
+      const resolvedAsset = Image.resolveAssetSource(testImageSource);
+
+      if (!resolvedAsset || !resolvedAsset.uri) {
+        throw new Error('Failed to resolve test image asset');
+      }
 
       // eslint-disable-next-line no-console
-      console.log('Test image URI:', testImageUri);
+      console.log('HTTP URI:', resolvedAsset.uri);
+      // eslint-disable-next-line no-console
+      console.log('Image dimensions:', resolvedAsset.width, 'x', resolvedAsset.height);
+
+      // Download the image to a local file (Brother printer needs local file path)
+      const localUri = `${cacheDirectory}test-label.png`;
+
+      // eslint-disable-next-line no-console
+      console.log('Downloading image to:', localUri);
+
+      const downloadResult = await downloadAsync(
+        resolvedAsset.uri,
+        localUri
+      );
+
+      // eslint-disable-next-line no-console
+      console.log('Local file URI:', downloadResult.uri);
 
       // Create printer object
       const printer: BrotherPrinter = {
@@ -133,18 +162,20 @@ export class PrintService {
         modelName: printerConfig.modelName,
       };
 
-      // Print the test image
+      // Print the test image using local file path
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      await printImage(printer, testImageUri, {
+      await printImage(printer, downloadResult.uri, {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         labelSize: LabelSize.LabelSizeRollW62RB
       });
 
       // eslint-disable-next-line no-console
       console.log('Test print sent successfully');
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Test print error:', error);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       throw new Error(
         `Failed to print test label: ${
           error instanceof Error ? error.message : 'Unknown error'

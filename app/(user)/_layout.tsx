@@ -64,6 +64,13 @@ export default function UserLayout() {
           headerShown: true,
         }}
       />
+      <Stack.Screen
+        name="label-preview"
+        options={{
+          title: 'Label Preview',
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }

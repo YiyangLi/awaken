@@ -16,7 +16,7 @@ interface LabelViewProps {
  */
 export const LabelView = React.forwardRef<View, LabelViewProps>(
   ({ labelFormat }, ref) => (
-    <View ref={ref} style={styles.labelContainer}>
+    <View ref={ref} collapsable={false} style={styles.labelContainer}>
       {/* Line 1: Customer Name (Font 18) */}
       <Text style={styles.customerName}>{labelFormat.line1}</Text>
 

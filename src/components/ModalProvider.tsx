@@ -16,7 +16,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useTheme } from '@/contexts';
+import { useTheme } from '@/contexts/ThemeContext';
 import * as Haptics from 'expo-haptics';
 
 /**

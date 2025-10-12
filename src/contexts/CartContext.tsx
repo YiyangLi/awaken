@@ -1,10 +1,8 @@
-import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from 'react';
-import { View, Alert } from 'react-native';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { router } from 'expo-router';
 import { StorageService } from '../storage';
 import { APP_CONFIG } from '../config';
-import { PrintService } from '../services/PrintService';
 import { formatLabelText } from '../utils/labelFormatter';
-import { LabelView } from '../components/LabelView';
 import type { Order, OrderItem, OrderStatus } from '../types';
 import { DrinkOptionType } from '../types'; // eslint-disable-line no-duplicate-imports
 
@@ -96,7 +94,6 @@ interface CartProviderProps {
  */
 export function CartProvider({ children }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const labelViewRef = useRef<View>(null);
 
   /**
    * Add item to cart
@@ -340,46 +337,18 @@ export function CartProvider({ children }: CartProviderProps) {
         console.error('Failed to save order to storage:', error);
       }
 
-      // Print label (if printer is configured)
-      try {
-        const printerIP = await StorageService.getSetting('printerIP');
+      // Format the label text from the order
+      const labelFormat = formatLabelText(order);
 
-        if (printerIP && labelViewRef.current) {
-          // Format the label text from the order
-          const labelFormat = formatLabelText(order);
-
-          // eslint-disable-next-line no-console
-          console.log('Printing label:', labelFormat);
-          // eslint-disable-next-line no-console
-          console.log('Printer IP:', printerIP);
-
-          // Print the label
-          await PrintService.printLabel(
-            labelFormat,
-            { ipAddress: printerIP, modelName: 'QL-810W' },
-            labelViewRef.current
-          );
-
-          // eslint-disable-next-line no-console
-          console.log('Label printed successfully');
-        } else {
-          // eslint-disable-next-line no-console
-          console.log('Skipping print - printer not configured or label view not ready');
-          // eslint-disable-next-line no-console
-          console.log('printerIP:', printerIP);
-          // eslint-disable-next-line no-console
-          console.log('labelViewRef.current:', labelViewRef.current);
-        }
-      } catch (printError) {
-        // eslint-disable-next-line no-console
-        console.error('Failed to print label:', printError);
-        // Show alert but don't prevent order from completing
-        Alert.alert(
-          'Print Failed',
-          'The label could not be printed, but your order was placed successfully.',
-          [{ text: 'OK' }]
-        );
-      }
+      // Navigate to preview screen with the label data
+      router.replace({
+        pathname: '/(user)/label-preview',
+        params: {
+          customerName: order.customerName,
+          line1: labelFormat.line1,
+          line2: labelFormat.line2,
+        },
+      });
 
       // Clear cart after order creation
       clearCart();
@@ -405,13 +374,6 @@ export function CartProvider({ children }: CartProviderProps) {
       }}
     >
       {children}
-      {/* Hidden label view for printing - positioned off-screen */}
-      <View style={{ position: 'absolute', left: -10000, top: -10000 }}>
-        <LabelView
-          ref={labelViewRef}
-          labelFormat={{ line1: 'Loading...', line2: 'Please wait' }}
-        />
-      </View>
     </CartContext.Provider>
   );
 }
