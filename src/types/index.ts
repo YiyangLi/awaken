@@ -189,6 +189,17 @@ export interface Syrup {
 }
 
 /**
+ * Label format for Brother P-touch printer
+ * Label size: 2.4" × 1.1"
+ */
+export interface LabelFormat {
+  /** Line 1: Customer name (Font 18, max 20 chars) */
+  line1: string;
+  /** Line 2: Drink summary (Font 12, max 30 chars) */
+  line2: string;
+}
+
+/**
  * Migration record for tracking schema version changes
  * Elder-friendly: Maintains history for debugging and rollback capabilities
  */

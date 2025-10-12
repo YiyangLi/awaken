@@ -3,9 +3,17 @@
 > **Note**: This changelog provides a high-level summary of completed tickets. For detailed implementation notes, verification results, and technical context, see `.claude/context/ticket-details/LCC_XX.md`
 
 ## Quick Reference
-- **Total Tickets Completed**: 17 (LCC_1 through LCC_14, LCC_16, LCC_17, LCC_18)
+- **Total Tickets Completed**: 18 (LCC_1 through LCC_14, LCC_16, LCC_17, LCC_18, LCC_19)
 - **Project Start**: 2025-10-03
-- **Last Updated**: 2025-10-06
+- **Last Updated**: 2025-10-11
+
+---
+
+## [LCC_19] - 2025-10-11 - Label Printer Order Summary Formatter
+**Files**: `src/utils/labelFormatter.ts` (NEW), `src/types/index.ts`, `app/(user)/review.tsx`
+**Summary**: Created label formatter utility for Brother P-touch printer (2.4" × 1.1" labels) with character limits and abbreviation logic. Added character counter to review screen with real-time feedback and visual warning at 18+ characters.
+**Key Features**: formatLabelText() function with 20-char name limit (line1) and 30-char drink summary (line2), smart abbreviations (H Choco, Y Choco, Chai, Mocha, Soda), priority-based customization display (shots → milk → syrup → dirty → cream), character counter UI with orange warning color >18 chars, maxLength={20} enforcement on TextInput
+[Details →](./ticket-details/LCC_19.md)
 
 ---
 

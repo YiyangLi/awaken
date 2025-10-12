@@ -28,6 +28,7 @@ export default function ReviewScreen() {
 
   const [customerName, setCustomerName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [nameLength, setNameLength] = useState(0);
 
   // If cart is empty, redirect back to menu
   useEffect(() => {
@@ -227,7 +228,10 @@ export default function ReviewScreen() {
               },
             ]}
             value={customerName}
-            onChangeText={setCustomerName}
+            onChangeText={(text) => {
+              setCustomerName(text);
+              setNameLength(text.length);
+            }}
             placeholder="Enter your name"
             placeholderTextColor={theme.colors.TEXT_DISABLED}
             autoCapitalize="words"
@@ -270,6 +274,21 @@ export default function ReviewScreen() {
             </Text>
           </Pressable>
         </View>
+
+        {/* Character counter */}
+        <Text
+          style={[
+            styles.charCounter,
+            {
+              color:
+                nameLength > 18 ? theme.colors.WARNING : theme.colors.TEXT_SECONDARY,
+              fontSize: theme.typography.FONT_SIZES.SMALL,
+            },
+          ]}
+          accessibilityLabel={`${nameLength} of 20 characters used`}
+        >
+          {nameLength}/20 characters
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -329,5 +348,10 @@ const styles = StyleSheet.create({
   buttonPressed: {
     opacity: 0.85,
     transform: [{ scale: 0.97 }],
+  },
+  charCounter: {
+    marginTop: 8,
+    marginLeft: 4,
+    fontWeight: '500',
   },
 });
