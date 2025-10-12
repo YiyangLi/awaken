@@ -93,6 +93,30 @@ export default function AdminDashboardScreen() {
       </Pressable>
 
       <Pressable
+        onPress={() => {router.push('/(admin)/printer');}}
+        style={({ pressed }) => [
+          styles.button,
+          styles.printerButton,
+          {
+            backgroundColor: theme.colors.SECONDARY,
+            minHeight: theme.touchTargets.LARGE,
+            ...theme.shadows.MD,
+          },
+          pressed && styles.buttonPressed,
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="Printer Settings"
+        accessibilityHint="Tap to configure Brother QL-810W printer"
+      >
+        <Text style={[styles.buttonText, {
+          color: '#FFFFFF',
+          fontSize: theme.typography.FONT_SIZES.SUBHEADING,
+        }]}>
+          Printer Settings
+        </Text>
+      </Pressable>
+
+      <Pressable
         onPress={handleLogout}
         style={({ pressed }) => [
           styles.button,
@@ -144,6 +168,9 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   syrupsButton: {
+    marginTop: 16,
+  },
+  printerButton: {
     marginTop: 16,
   },
   logoutButton: {

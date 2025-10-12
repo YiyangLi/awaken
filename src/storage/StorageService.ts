@@ -289,6 +289,40 @@ class StorageServiceClass {
 
     return value;
   }
+
+  /**
+   * Get a single setting value
+   * Used for storing printer IP address and other app settings
+   *
+   * @param key - Setting key (e.g., 'printerIP')
+   * @returns Promise resolving to setting value or null if not found
+   */
+  async getSetting(key: string): Promise<string | null> {
+    try {
+      return await AsyncStorage.getItem(`@awaken:settings:${key}`);
+    } catch (error) {
+      console.error(`Failed to get setting ${key}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Save a single setting value
+   * Used for storing printer IP address and other app settings
+   *
+   * @param key - Setting key (e.g., 'printerIP')
+   * @param value - Setting value
+   * @returns Promise that resolves when save completes
+   * @throws Error if save fails
+   */
+  async saveSetting(key: string, value: string): Promise<void> {
+    try {
+      await AsyncStorage.setItem(`@awaken:settings:${key}`, value);
+    } catch (error) {
+      console.error(`Failed to save setting ${key}:`, error);
+      throw error;
+    }
+  }
 }
 
 /**

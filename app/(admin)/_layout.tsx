@@ -70,6 +70,13 @@ export default function AdminLayout() {
           headerShown: true,
         }}
       />
+      <Stack.Screen
+        name="printer"
+        options={{
+          title: 'Printer Settings',
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }
