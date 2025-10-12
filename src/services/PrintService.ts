@@ -1,12 +1,18 @@
 import { captureRef } from 'react-native-view-shot';
 // @ts-ignore - Brother printing library does not have TypeScript types
-import BrotherPrint from 'react-native-brother-printing';
+import { printImage, LabelSize, discoverPrinters, registerBrotherListener } from '@w3lcome/react-native-brother-printers';
 import type { LabelFormat } from '@/types';
 import * as Haptics from 'expo-haptics';
 
 export interface PrinterConfig {
   ipAddress: string;
   modelName: 'QL-810W';
+}
+
+export interface BrotherPrinter {
+  ipAddress: string;
+  modelName: string;
+  serialNumber?: string;
 }
 
 /**
@@ -27,24 +33,36 @@ export class PrintService {
     labelViewRef: unknown
   ): Promise<void> {
     try {
-      // 1. Capture label view as PNG image
+      // 1. Wait for view to render
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // 2. Capture label view as PNG image
       const imageUri = await captureRef(labelViewRef as never, {
         format: 'png',
         quality: 1.0,
         width: 732, // 2.44" at 300 DPI
         height: 411, // 1.37" at 300 DPI
+        result: 'tmpfile', // Save to temp file for better compatibility
       });
 
       // eslint-disable-next-line no-console
       console.log('Label image generated:', imageUri);
+      // eslint-disable-next-line no-console
+      console.log('Label format:', _labelFormat);
 
-      // 2. Send image to printer via WiFi
+      // 2. Create printer object for @w3lcome/react-native-brother-printers
+      const printer: BrotherPrinter = {
+        ipAddress: printerConfig.ipAddress,
+        modelName: printerConfig.modelName,
+      };
+
+      // 3. Send image to printer via WiFi
+      // Label size for 62mm × 34.88mm (2.44" × 1.37")
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      await BrotherPrint.printImageViaWifi(
-        imageUri,
-        printerConfig.ipAddress,
-        printerConfig.modelName
-      );
+      await printImage(printer, imageUri, {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        labelSize: LabelSize.LabelSizeRollW62RB
+      });
 
       // eslint-disable-next-line no-console
       console.log('Print sent to Brother QL-810W');
@@ -63,32 +81,75 @@ export class PrintService {
 
   /**
    * Discover Brother printers on local WiFi network
-   * Note: react-native-brother-printing v0.0.1 does not provide a discovery API
-   * This method is not implemented - manual IP entry is required
-   * @returns Empty array (discovery not supported by library)
+   * Uses @w3lcome/react-native-brother-printers discovery API
+   * @returns Promise that resolves with array of discovered printers
    */
-  static async discoverPrinters(): Promise<unknown[]> {
-    // eslint-disable-next-line no-console
-    console.log('Printer discovery not supported by react-native-brother-printing v0.0.1');
-    // The library only supports direct IP address printing
-    // Users must manually enter the printer IP address
-    return [];
+  static async discoverPrinters(): Promise<BrotherPrinter[]> {
+    return new Promise((resolve) => {
+      const discoveredPrinters: BrotherPrinter[] = [];
+
+      // Register listener for printer discovery results
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      registerBrotherListener('onDiscoverPrinters', (printers: BrotherPrinter[]) => {
+        // eslint-disable-next-line no-console
+        console.log('Discovered printers:', printers);
+        discoveredPrinters.push(...printers);
+        resolve(printers);
+      });
+
+      // Start printer discovery with IPv6 support
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      discoverPrinters({ V6: true });
+
+      // Timeout after 10 seconds if no printers found
+      setTimeout(() => {
+        if (discoveredPrinters.length === 0) {
+          // eslint-disable-next-line no-console
+          console.log('No printers discovered within timeout');
+          resolve([]);
+        }
+      }, 10000);
+    });
   }
 
   /**
-   * Test print with sample data
+   * Test print with static image file
    * @param printerConfig - Printer configuration
-   * @param labelViewRef - Reference to LabelView component
    */
   static async testPrint(
-    printerConfig: PrinterConfig,
-    labelViewRef: unknown
+    printerConfig: PrinterConfig
   ): Promise<void> {
-    const testLabel: LabelFormat = {
-      line1: 'Test Order',
-      line2: 'Mocha 2 shots',
-    };
+    try {
+      // Use the static test-label.png image directly
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const testImageUri = require('../../assets/images/test-label.png');
 
-    await this.printLabel(testLabel, printerConfig, labelViewRef);
+      // eslint-disable-next-line no-console
+      console.log('Test image URI:', testImageUri);
+
+      // Create printer object
+      const printer: BrotherPrinter = {
+        ipAddress: printerConfig.ipAddress,
+        modelName: printerConfig.modelName,
+      };
+
+      // Print the test image
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+      await printImage(printer, testImageUri, {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        labelSize: LabelSize.LabelSizeRollW62RB
+      });
+
+      // eslint-disable-next-line no-console
+      console.log('Test print sent successfully');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Test print error:', error);
+      throw new Error(
+        `Failed to print test label: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
+      );
+    }
   }
 }

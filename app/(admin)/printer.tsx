@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,9 +12,7 @@ import {
 import { useTheme, useModal } from '@/contexts';
 import { PrintService } from '../../src/services/PrintService';
 import { StorageService } from '@/storage';
-import { LabelView } from '@/components/LabelView';
 import * as Haptics from 'expo-haptics';
-import type { LabelFormat } from '@/types';
 
 export default function PrinterSettingsScreen() {
   const { theme } = useTheme();
@@ -24,12 +22,6 @@ export default function PrinterSettingsScreen() {
   const [savedIP, setSavedIP] = useState<string | null>(null);
   const [discoveredPrinters, setDiscoveredPrinters] = useState<unknown[]>([]);
   const [isDiscovering, setIsDiscovering] = useState(false);
-  const [testLabel] = useState<LabelFormat>({
-    line1: 'Test Order',
-    line2: 'Mocha 2 shots',
-  });
-
-  const labelViewRef = useRef<View>(null);
 
   useEffect(() => {
     loadPrinterIP();
@@ -107,24 +99,15 @@ export default function PrinterSettingsScreen() {
       return;
     }
 
-    if (!labelViewRef.current) {
-      showAlert({
-        title: 'Error',
-        message: 'Label view not ready. Please try again.',
-      });
-      return;
-    }
-
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
       await PrintService.testPrint(
-        { ipAddress: savedIP, modelName: 'QL-810W' },
-        labelViewRef.current
+        { ipAddress: savedIP, modelName: 'QL-810W' }
       );
       showAlert({
         title: 'Test Print Sent',
-        message: 'Check your printer for the test label.',
+        message: 'Check your printer for the test label with "Jack" and "Mocha W Choco".',
       });
     } catch (error) {
       showAlert({
@@ -416,11 +399,6 @@ export default function PrinterSettingsScreen() {
           Save a printer IP address first to enable test printing
         </Text>
       )}
-
-      {/* Hidden label view for printing */}
-      <View style={styles.hiddenView}>
-        <LabelView ref={labelViewRef} labelFormat={testLabel} />
-      </View>
     </ScrollView>
   );
 }
@@ -514,10 +492,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     marginTop: 8,
-  },
-  hiddenView: {
-    position: 'absolute',
-    left: -10000,
-    top: -10000,
   },
 });
