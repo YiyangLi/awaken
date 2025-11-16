@@ -142,19 +142,35 @@ export class PrintService {
       // eslint-disable-next-line no-console
       console.log('Image dimensions:', resolvedAsset.width, 'x', resolvedAsset.height);
 
-      // Download the image to a local file (Brother printer needs local file path)
-      const localUri = `${cacheDirectory}test-label.png`;
+      let imageUri: string;
 
-      // eslint-disable-next-line no-console
-      console.log('Downloading image to:', localUri);
+      // In Release builds, resolvedAsset.uri might be a local file path already
+      // Check if it's an HTTP URL or a local file path
+      if (resolvedAsset.uri.startsWith('http://') || resolvedAsset.uri.startsWith('https://')) {
+        // Development mode: Download from Metro bundler
+        const localUri = `${cacheDirectory}test-label.png`;
 
-      const downloadResult = await downloadAsync(
-        resolvedAsset.uri,
-        localUri
-      );
+        // eslint-disable-next-line no-console
+        console.log('Downloading image from Metro to:', localUri);
 
-      // eslint-disable-next-line no-console
-      console.log('Local file URI:', downloadResult.uri);
+        const downloadResult = await downloadAsync(
+          resolvedAsset.uri,
+          localUri
+        );
+
+        if (!downloadResult || !downloadResult.uri) {
+          throw new Error('Failed to download test image from Metro bundler');
+        }
+
+        imageUri = downloadResult.uri;
+        // eslint-disable-next-line no-console
+        console.log('Downloaded to:', imageUri);
+      } else {
+        // Release mode: Use bundled asset path directly
+        imageUri = resolvedAsset.uri;
+        // eslint-disable-next-line no-console
+        console.log('Using bundled asset path:', imageUri);
+      }
 
       // Create printer object
       const printer: BrotherPrinter = {
@@ -164,7 +180,7 @@ export class PrintService {
 
       // Print the test image using local file path
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      await printImage(printer, downloadResult.uri, {
+      await printImage(printer, imageUri, {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         labelSize: LabelSize.LabelSizeRollW62RB
       });

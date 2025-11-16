@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { Alert } from 'react-native';
 import { router } from 'expo-router';
 import { StorageService } from '../storage';
 import { APP_CONFIG } from '../config';
@@ -341,6 +342,8 @@ export function CartProvider({ children }: CartProviderProps) {
       const labelFormat = formatLabelText(order);
 
       // Navigate to preview screen with the label data
+      // IMPORTANT: Do NOT clear cart here - it causes review screen to redirect
+      // Cart will be cleared by label-preview screen after rendering
       router.replace({
         pathname: '/(user)/label-preview',
         params: {
@@ -349,9 +352,6 @@ export function CartProvider({ children }: CartProviderProps) {
           line2: labelFormat.line2,
         },
       });
-
-      // Clear cart after order creation
-      clearCart();
 
       return order;
     },

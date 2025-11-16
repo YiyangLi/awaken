@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useTheme } from '@/contexts';
+import { useTheme, useCart } from '@/contexts';
 import { useEffect, useState, useRef } from 'react';
 import { PrintService } from '@/services';
 import { StorageService } from '@/storage';
@@ -11,6 +11,7 @@ import { captureRef } from 'react-native-view-shot';
 
 export default function LabelPreviewScreen() {
   const { theme } = useTheme();
+  const { clearCart } = useCart();
   const router = useRouter();
   const params = useLocalSearchParams();
 
@@ -22,8 +23,24 @@ export default function LabelPreviewScreen() {
   const labelViewRef = useRef<View>(null);
 
   useEffect(() => {
+    // Clear cart immediately when this screen mounts
+    // This prevents review screen from redirecting
+    clearCart();
+
+    // Start printing process
     printLabel();
   }, []);
+
+  // Redirect to menu when printing is complete
+  useEffect(() => {
+    if (!isPrinting) {
+      const timer = setTimeout(() => {
+        router.replace('/(user)/');
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isPrinting, router]);
 
   const printLabel = async () => {
     try {
@@ -33,10 +50,6 @@ export default function LabelPreviewScreen() {
         // eslint-disable-next-line no-console
         console.log('No printer configured, skipping print');
         setIsPrinting(false);
-        // Navigate back to menu after 2 seconds
-        setTimeout(() => {
-          router.replace('/(user)/');
-        }, 2000);
         return;
       }
 
@@ -54,10 +67,9 @@ export default function LabelPreviewScreen() {
         result: 'tmpfile',
       });
 
-      // eslint-disable-next-line no-console
-      console.log('Printing to:', printerIP);
-      // eslint-disable-next-line no-console
-      console.log('Using captured image:', imageUri);
+      if (!imageUri) {
+        throw new Error('Failed to capture label image');
+      }
 
       const labelFormat: LabelFormat = { line1, line2 };
 
@@ -70,20 +82,12 @@ export default function LabelPreviewScreen() {
       // eslint-disable-next-line no-console
       console.log('Print completed successfully');
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-
-      // Navigate back to menu after successful print
-      setTimeout(() => {
-        router.replace('/(user)/');
-      }, 1500);
+      setIsPrinting(false);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Print failed:', error);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-
-      // Navigate back to menu after error
-      setTimeout(() => {
-        router.replace('/(user)/');
-      }, 2000);
+      setIsPrinting(false);
     }
   };
 
